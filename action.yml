@@ -1,0 +1,27 @@
+name: "CrowdStrike Container Image Scan"
+description: "Scan your container image for vulnerabilities and malware"
+author: "The CrowdStrike Community"
+branding:
+  color: red
+  icon: shield
+inputs:
+  falcon_client_id:
+    description: "Your CrowdStrike OAUTH2 Client ID"
+    required: true
+  container_repository:
+    description: "The container image to scan (e.g. my_image or myregistry.io/my_container)"
+    required: true
+  container_tag:
+    description: "The container tag to scan against (default: latest)"
+    default: latest
+  crowdstrike_region:
+    description: "The CrowdStrike Cloud region to submit for scanning (default: us-1)"
+    default: us-1
+
+runs:
+  using: composite
+  steps:
+    - run: "pip install docker"
+      shell: bash
+    - run: "python $GITHUB_ACTION_PATH/cs_scanimage.py --clientid ${{ inputs.falcon_client_id }} --repo ${{ inputs.container_repository }} --tag ${{ inputs.container_tag }} --cloud ${{ inputs.crowdstrike_region }}"
+      shell: bash
