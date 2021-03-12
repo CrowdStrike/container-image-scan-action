@@ -4,7 +4,7 @@
 
 ### Pre-requisites
 
-1. Be a CrowdStrike customer
+1. Have a CrowdStrike Container Workload Protection (CWP) subscription
 1. Create an OAUTH2 secret at [https://falcon.crowdstrike.com/support/api-clients-and-keys](https://falcon.crowdstrike.com/support/api-clients-and-keys)
 1. Add your OAUTH2 secret called `FALCON_CLIENT_SECRET` to a GitHub secret at `https://github.com/<your_org>/<your_repo>/settings/secrets/actions`
 1. Create a workflow `.yml` file in your `.github/workflows` directory. An [example workflow](#example-workflow) is available below.
