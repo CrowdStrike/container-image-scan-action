@@ -1,5 +1,6 @@
 import argparse
 import docker
+import json
 import requests
 import sys
 from os import environ as env
@@ -131,6 +132,10 @@ class ScanReport(dict):
         sec_code = self.get_alerts_secrets()
         mcfg_code = self.get_alerts_misconfig()
         return(vuln_code | mal_code | sec_code | mcfg_code)
+
+    def export(self, filename):
+        with open(filename, 'w') as f:
+            f.write(json.dumps(self, indent=4))
 
     # Step 6: pass the vulnerabilities from scan report,
     # loop through and find high severity vulns
@@ -266,19 +271,21 @@ def parse_args():
                           default='latest',
                           envvar='CONTAINER_TAG',
                           help="Container image tag")
-    required.add_argument('-c', '--cloud', action=EnvDefault, dest="cloud",
-                          envvar="FALCON_CLOUD",
+    required.add_argument('-c', '--cloud-region', action=EnvDefault, dest="cloud",
+                          envvar="FALCON_CLOUD_REGION",
                           default='us-1',
                           choices=['us-1', 'us-2', 'eu-1'],
                           help="CrowdStrike cloud region")
+    parser.add_argument('--json-report', dest="report", default=None,
+                        help='Export JSON report to specified file')
     args = parser.parse_args()
 
-    return args.client_id, args.repo, args.tag, args.cloud
+    return args.client_id, args.repo, args.tag, args.cloud, args.report
 
 
 def main():
     try:
-        client_id, repo, tag, cloud = parse_args()
+        client_id, repo, tag, cloud, json_report = parse_args()
         client = docker.from_env()
         client_secret = env.get('FALCON_CLIENT_SECRET')
         if client_secret is None:
@@ -290,7 +297,10 @@ def main():
         scan_image.docker_login()
         scan_image.docker_push()
         token = scan_image.get_api_token()
+
         scan_report = scan_image.get_scanreport(token)
+        if json_report:
+            scan_report.export(json_report)
         sys.exit(scan_report.status_code())
     except APIError as e:
         print("Unable to scan", e)

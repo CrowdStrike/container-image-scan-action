@@ -37,10 +37,37 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up chart-testing
-        uses: crowdstrike/container-image-scan-action@v0.0.5
+        uses: crowdstrike/container-image-scan-action@v0.2
         with:
           falcon_client_id: <my_falcon_client_id>
           container_repository: docker.io/library/busybox
         env:
           FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"
+```
+
+Alternatively if you want to run all the configurations as secrets, set any the following under `env` instead of `uses`:
+
+```yaml
+name: Scan Container Images
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up chart-testing
+        uses: crowdstrike/container-image-scan-action@v0.2
+        env:
+          FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"
+          FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"
+          FALCON_CLOUD_REGION: "{{ secrets.FALCON_CLOUD_REGION }}"
+          CONTAINER_REPO: "{{ secrets.CONTAINER_REPO }}"
+          CONTAINER_TAG: "{{ secrets.CONTAINER_TAG }}"
 ```
