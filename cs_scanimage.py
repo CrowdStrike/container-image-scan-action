@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import docker
 import json
@@ -7,6 +8,7 @@ from os import environ as env
 from enum import Enum
 import time
 import getpass
+
 
 registry_url_map = {
     'us-1': 'container-upload.us-1.crowdstrike.com',
@@ -42,16 +44,21 @@ class ScanImage(Exception):
 
     # Step 1: perform docker tag to the registry corresponding to the cloud entered
     def docker_tag(self):
-        print("performing docker tag", "repo", self.repo, "tag", self.tag)
+        print("performing docker tag: repo: '%s', tag: '%s'" % (self.repo, self.tag))
         local_tag = self.repo + ":" + self.tag
         url_tag = self.server_domain + "/" + self.repo
-        print("tagging " + local_tag + " to " + url_tag + ":" + self.tag)
 
         try:
             dock_api_client = docker.APIClient()
         except AttributeError:
             dock_api_client = docker.Client()
 
+        container_image = ''.join([ ''.join(img["RepoTags"]) for img in dock_api_clien
+        if not container_image:
+            print("pulling container image: '%s'" % (local_tag))
+            image_pull = self.client.pull(self.repo, self.tag)
+
+        print("tagging '%s' to '%s:%s'" % (local_tag, url_tag, self.tag))
         dock_api_client.tag(local_tag, url_tag, self.tag, force=True)
 
     # Step 2: login using the credentials supplied
