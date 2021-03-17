@@ -1,11 +1,14 @@
+from __future__ import print_function
 import argparse
 import docker
+import json
 import requests
 import sys
 from os import environ as env
 from enum import Enum
 import time
 import getpass
+
 
 registry_url_map = {
     'us-1': 'container-upload.us-1.crowdstrike.com',
@@ -41,16 +44,21 @@ class ScanImage(Exception):
 
     # Step 1: perform docker tag to the registry corresponding to the cloud entered
     def docker_tag(self):
-        print("performing docker tag", "repo", self.repo, "tag", self.tag)
+        print("performing docker tag: repo: '%s', tag: '%s'" % (self.repo, self.tag))
         local_tag = self.repo + ":" + self.tag
         url_tag = self.server_domain + "/" + self.repo
-        print("tagging " + local_tag + " to " + url_tag + ":" + self.tag)
 
         try:
             dock_api_client = docker.APIClient()
         except AttributeError:
             dock_api_client = docker.Client()
 
+        container_image = ''.join([ ''.join(img["RepoTags"]) for img in dock_api_clien
+        if not container_image:
+            print("pulling container image: '%s'" % (local_tag))
+            image_pull = self.client.pull(self.repo, self.tag)
+
+        print("tagging '%s' to '%s:%s'" % (local_tag, url_tag, self.tag))
         dock_api_client.tag(local_tag, url_tag, self.tag, force=True)
 
     # Step 2: login using the credentials supplied
@@ -131,6 +139,10 @@ class ScanReport(dict):
         sec_code = self.get_alerts_secrets()
         mcfg_code = self.get_alerts_misconfig()
         return(vuln_code | mal_code | sec_code | mcfg_code)
+
+    def export(self, filename):
+        with open(filename, 'w') as f:
+            f.write(json.dumps(self, indent=4))
 
     # Step 6: pass the vulnerabilities from scan report,
     # loop through and find high severity vulns
@@ -266,19 +278,21 @@ def parse_args():
                           default='latest',
                           envvar='CONTAINER_TAG',
                           help="Container image tag")
-    required.add_argument('-c', '--cloud', action=EnvDefault, dest="cloud",
-                          envvar="FALCON_CLOUD",
+    required.add_argument('-c', '--cloud-region', action=EnvDefault, dest="cloud",
+                          envvar="FALCON_CLOUD_REGION",
                           default='us-1',
                           choices=['us-1', 'us-2', 'eu-1'],
                           help="CrowdStrike cloud region")
+    parser.add_argument('--json-report', dest="report", default=None,
+                        help='Export JSON report to specified file')
     args = parser.parse_args()
 
-    return args.client_id, args.repo, args.tag, args.cloud
+    return args.client_id, args.repo, args.tag, args.cloud, args.report
 
 
 def main():
     try:
-        client_id, repo, tag, cloud = parse_args()
+        client_id, repo, tag, cloud, json_report = parse_args()
         client = docker.from_env()
         client_secret = env.get('FALCON_CLIENT_SECRET')
         if client_secret is None:
@@ -290,7 +304,10 @@ def main():
         scan_image.docker_login()
         scan_image.docker_push()
         token = scan_image.get_api_token()
+
         scan_report = scan_image.get_scanreport(token)
+        if json_report:
+            scan_report.export(json_report)
         sys.exit(scan_report.status_code())
     except APIError as e:
         print("Unable to scan", e)
