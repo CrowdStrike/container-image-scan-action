@@ -23,5 +23,5 @@ runs:
   steps:
     - run: "pip install docker"
       shell: bash
-    - run: "$GITHUB_ACTION_PATH/scan.sh -u '${{ inputs.falcon_client_id }}' -r '${{ inputs.container_repository }}' -t '${{ inputs.container_tag }}' -c '${{ inputs.crowdstrike_region }}"'
+    - run: "$GITHUB_ACTION_PATH/scan.sh -u '${{ inputs.falcon_client_id }}' -r '${{ inputs.container_repository }}' -t '${{ inputs.container_tag }}' -c '${{ inputs.crowdstrike_region }}'"
       shell: bash
