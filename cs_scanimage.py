@@ -21,13 +21,6 @@ auth_url_map = {
     'eu-1': 'https://api.eu-1.crowdstrike.com',
 }
 
-scanreport_endpoint = "/reports?"
-param1 = "repository="
-param2 = "tag="
-auth_url_endpoint = "/oauth2/token"
-retry_count = 10
-sleep_seconds = 10
-
 
 # class to simulate scanning
 class ScanImage(Exception):
@@ -40,23 +33,25 @@ class ScanImage(Exception):
         self.tag = tag
         self.client = client
         self.server_domain = registry_url_map[cloud]
-        self.auth_url = auth_url_map[cloud] + auth_url_endpoint
+        self.auth_url = "%s/oauth2/token" % (auth_url_map[cloud])
 
     # Step 1: perform docker tag to the registry corresponding to the cloud entered
     def docker_tag(self):
-        print("performing docker tag: repo: '%s', tag: '%s'" % (self.repo, self.tag))
-        local_tag = self.repo + ":" + self.tag
-        url_tag = self.server_domain + "/" + self.repo
+        print("performing docker tag: repo: '%s', tag: '%s'" %
+              (self.repo, self.tag))
+        local_tag = "%s:%s" % (self.repo, self.tag)
+        url_tag = "%s/%s" % (self.server_domain, self.repo)
 
         try:
             dock_api_client = docker.APIClient()
         except AttributeError:
             dock_api_client = docker.Client()
 
-        container_image = ''.join([ ''.join(img["RepoTags"]) for img in dock_api_clien
+        container_image = ''.join((''.join(img["RepoTags"])
+                                   for img in dock_api_client.images(name=local_tag)))
         if not container_image:
             print("pulling container image: '%s'" % (local_tag))
-            image_pull = self.client.pull(self.repo, self.tag)
+            image_pull = dock_api_client.pull(self.repo, self.tag)
 
         print("tagging '%s' to '%s:%s'" % (local_tag, url_tag, self.tag))
         dock_api_client.tag(local_tag, url_tag, self.tag, force=True)
@@ -69,11 +64,13 @@ class ScanImage(Exception):
 
     # Step 3: perform docker push using the repo and tag supplied
     def docker_push(self):
-        print("performing docker push", "repo", self.repo, "tag", self.tag)
-        image_str = self.server_domain + "/" + self.repo + ":" + self.tag
+        print("performing docker push: repo: '%s', tag: '%s'" %
+              (self.repo, self.tag))
+        image_str = "%s/%s:%s" % (self.server_domain, self.repo, self.tag)
 
         try:
-            image_push = self.client.images.push(image_str, stream=True, decode=True)
+            image_push = self.client.images.push(
+                image_str, stream=True, decode=True)
         except AttributeError:
             image_push = self.client.push(image_str, stream=True, decode=True)
 
@@ -102,20 +99,22 @@ class ScanImage(Exception):
     # Step 5: poll and get scanreport for specified amount of retries
     def get_scanreport(self, token):
         print("Getting Scan Report")
-        server_url = "https://" + self.server_domain
-        scanreport_url = server_url + scanreport_endpoint
-        get_url = scanreport_url + param1 + self.repo + "&" + param2 + self.tag
-        count = 0
-        while count < retry_count:
-            count += 1
-            print("retry count", count)
+        scanreport_endpoint = "/reports?"
+        server_url = "https://%s" % (self.server_domain)
+        scanreport_url = "%s%s" % (server_url, scanreport_endpoint)
+        retry_count = 10
+        sleep_seconds = 10
+        get_url = "%srepository=%s&tag=%s" % (
+            scanreport_url, self.repo, self.tag)
+
+        for _ in range(retry_count):
             time.sleep(sleep_seconds)
             resp = requests.get(get_url, auth=BearerAuth(token))
             if resp.status_code != 200:
                 print("report not generated yet, retrying ... ")
             else:
                 return ScanReport(resp.json())
-        print("retries exhausted")
+
         raise APIError('GET ' + get_url + ' {}'.format(resp.status_code))
 
 
@@ -148,7 +147,7 @@ class ScanReport(dict):
     # loop through and find high severity vulns
     # return HighVulnerability enum value
     def get_alerts_vuln(self):
-        print("running get_alerts_vuln")
+        print("Searching for vulnerabilities in scan report")
         vuln_code = 0
         vulnerabilities = self[self.vuln_str_key_1]
         if vulnerabilities is not None:
@@ -167,7 +166,7 @@ class ScanReport(dict):
     # loop through and find if detection type is malware
     # return Malware enum value
     def get_alerts_malware(self):
-        print("running get_alerts_malware")
+        print("Searching for malware in scan report...")
         det_code = 0
         detections = self[self.detect_str_key]
         if detections is not None:
@@ -185,7 +184,7 @@ class ScanReport(dict):
     # loop through and find if detection type is secret
     # return Success enum value but print to stderr
     def get_alerts_secrets(self):
-        print("running get_alerts_secrets")
+        print("Searching for leaked secrets in scan report...")
         det_code = 0
         detections = self[self.detect_str_key]
         if detections is not None:
@@ -204,7 +203,7 @@ class ScanReport(dict):
     # loop through and find if detection type is misconfig
     # return Success enum value but print to stderr
     def get_alerts_misconfig(self):
-        print("running get_alerts_misconfig")
+        print("Searching for misconfigurations in scan report...")
         det_code = 0
         detections = self[self.detect_str_key]
         if detections is not None:
