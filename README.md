@@ -13,9 +13,9 @@
 ### Inputs
 
 -  `falcon_client_id`: Your CrowdStrike OAUTH2 Client ID
--  `container_repository`: The container image to scan (e.g. my_image or myregistry.io/my_container)
--  `container_tag`: The container tag to scan against (default: latest)
--  `crowdstrike_region`: The CrowdStrike Cloud region to submit for scanning (default: us-1)
+-  `container_repository`: The container image to scan (e.g. `my_image` or `myregistry.io/my_container`)
+-  `container_tag`: The container tag to scan against (default: `latest`)
+-  `crowdstrike_region`: The CrowdStrike Cloud region to submit for scanning (default: `us-1`)
 
 ### Example Workflow
 
@@ -36,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up chart-testing
+      - name: CrowdStrike Container Image Scan
         uses: crowdstrike/container-image-scan-action@v0.3
         with:
           falcon_client_id: <my_falcon_client_id>
@@ -62,7 +62,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up chart-testing
+      - name: CrowdStrike Container Image Scan
         uses: crowdstrike/container-image-scan-action@v0.3
         env:
           FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"
