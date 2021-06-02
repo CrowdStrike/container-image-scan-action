@@ -3,9 +3,9 @@
 # Copyright The CrowdStrike Community
 # See License for more info
 
-# set -o errexit
+set -o errexit
 set -o nounset
-# set -o pipefail
+set -o pipefail
 
 install_image_scan() {
     local cs_py="cs_scanimage.py"
