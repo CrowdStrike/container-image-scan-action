@@ -22,12 +22,14 @@
 -  `crowdstrike_score`: The score threshold used to allow for step success (default: `500`)
 
 NOTE: Scoring is based on the CrowdStrike vulnerability severity tabe scoring shown below.
-```
-critical_score = 2000
-high_score = 500
-medium_score = 100
-low_score = 20
-```
+
+| Severity           | Score      |
+|--------------------|:-----------|
+| Critical           | 2000       |
+| High               | 500        |
+| Medium             | 100        |
+| Low                | 20         |
+
 ### Example Workflow
 
 Create a workflow (eg: `.github/workflows/scan.yml`):
