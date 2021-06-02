@@ -17,6 +17,10 @@
 -  `container_tag`: The container tag to scan against (default: `latest`)
 -  `crowdstrike_region`: The CrowdStrike Cloud region to submit for scanning (default: `us-1`)
 
+### Optional input for vulnerability score threshold
+
+-  `crowdstrike_score`: The score threshold used to allow for step success (default: `500`)
+
 ### Example Workflow
 
 Create a workflow (eg: `.github/workflows/scan.yml`):
