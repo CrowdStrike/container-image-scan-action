@@ -46,6 +46,12 @@ parse_args() {
             shift
         fi
         ;;
+      -s|--score_threshold)
+        if [[ -n ${2:-} ]]; then
+            opts="$opts $1 $2"
+            shift
+        fi
+        ;;
       --) # end argument parsing
         shift
         break
@@ -74,8 +80,14 @@ main() {
         opts=$(parse_args "$@" || exit 1)
 
         python3 cs_scanimage.py $opts
+        EXIT_CODE=$?
+        echo "::set-output name=exit-code::$EXIT_CODE"
+        exit $EXIT_CODE
     else
         python3 cs_scanimage.py
+        EXIT_CODE=$?
+        echo "::set-output name=exit-code::$EXIT_CODE"
+        exit $EXIT_CODE
     fi
 }
 

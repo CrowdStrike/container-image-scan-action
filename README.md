@@ -16,6 +16,16 @@
 -  `container_repository`: The container image to scan (e.g. `my_image` or `myregistry.io/my_container`)
 -  `container_tag`: The container tag to scan against (default: `latest`)
 -  `crowdstrike_region`: The CrowdStrike Cloud region to submit for scanning (default: `us-1`)
+-  `crowdstrike_score`: The score threshold used to allow for step success (optional, default: `500`)
+
+NOTE: Scoring is based on the CrowdStrike vulnerability severity tabe scoring shown below.
+
+| Severity           | Score      |
+|--------------------|:-----------|
+| Critical           | 2000       |
+| High               | 500        |
+| Medium             | 100        |
+| Low                | 20         |
 
 ### Example Workflow
 

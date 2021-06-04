@@ -17,11 +17,19 @@ inputs:
   crowdstrike_region:
     description: "The CrowdStrike Cloud region to submit for scanning (default: us-1)"
     default: us-1
+  crowdstrike_score:
+    description: "Vulnerability score threshold"
+    default: 500
+outputs:
+  exit-code:
+    description: "exit code of scan"
+    value: ${{ steps.scan-image.outputs.exit-code }}
 
 runs:
   using: composite
   steps:
     - run: "pip install docker"
       shell: bash
-    - run: "$GITHUB_ACTION_PATH/scan.sh -u '${{ inputs.falcon_client_id }}' -r '${{ inputs.container_repository }}' -t '${{ inputs.container_tag }}' -c '${{ inputs.crowdstrike_region }}'"
+    - id: scan-image
+      run: $GITHUB_ACTION_PATH/scan.sh -u '${{ inputs.falcon_client_id }}' -r '${{ inputs.container_repository }}' -t '${{ inputs.container_tag }}' -c '${{ inputs.crowdstrike_region }}' -s '${{ inputs.crowdstrike_score }}'
       shell: bash
