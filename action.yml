@@ -23,6 +23,11 @@ inputs:
   retry_count:
     description: "Scan report download retries"
     default: 10
+  log_level:
+    description: "Set the logging level (default: INFO)"
+    default: INFO
+  json_report:
+    description: "Export JSON report to specified file (Default: None)"
 outputs:
   exit-code:
     description: "exit code of scan"
@@ -34,5 +39,5 @@ runs:
     - run: "pip install docker"
       shell: bash
     - id: scan-image
-      run: $GITHUB_ACTION_PATH/scan.sh -u '${{ inputs.falcon_client_id }}' -r '${{ inputs.container_repository }}' -t '${{ inputs.container_tag }}' -c '${{ inputs.crowdstrike_region }}' -s '${{ inputs.crowdstrike_score }}' -R '${{ inputs.retry_count }}'
+      run: $GITHUB_ACTION_PATH/scan.sh -u '${{ inputs.falcon_client_id }}' -r '${{ inputs.container_repository }}' -t '${{ inputs.container_tag }}' -c '${{ inputs.crowdstrike_region }}' -s '${{ inputs.crowdstrike_score }}' -R '${{ inputs.retry_count }}' --log-level '${{ inputs.log_level }}' --json-report '${{ inputs.json_report }}'
       shell: bash
