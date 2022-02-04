@@ -18,6 +18,8 @@
 -  `crowdstrike_region`: The CrowdStrike Cloud region to submit for scanning (default: `us-1`)
 -  `crowdstrike_score`: The score threshold used to allow for step success (optional, default: `500`)
 -  `retry_count`: How many attempts will be made to download the scan report before giving up (optional, default: `10`)
+-  `json_report`: Path to output the json report (optional, default: `None`)
+-  `log_level`: Set the logging level (optional, default: `INFO`)
 
 NOTE: Scoring is based on the CrowdStrike vulnerability severity tabe scoring shown below.
 

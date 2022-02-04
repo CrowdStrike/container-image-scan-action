@@ -58,6 +58,18 @@ parse_args() {
             shift
         fi
         ;;
+      --log-level)
+        if [[ -n ${2:-} ]]; then
+            opts="$opts $1 $2"
+            shift
+        fi
+        ;;
+      --json-report)
+        if [[ -n ${2:-} ]]; then
+            opts="$opts $1 $2"
+            shift
+        fi
+        ;;
       --) # end argument parsing
         shift
         break
