@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: CrowdStrike Container Image Scan
-        uses: crowdstrike/container-image-scan-action@v0.6
+        uses: crowdstrike/container-image-scan-action@v0.7
         with:
           falcon_client_id: <my_falcon_client_id>
           container_repository: docker.io/library/busybox
@@ -76,7 +76,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: CrowdStrike Container Image Scan
-        uses: crowdstrike/container-image-scan-action@v0.6
+        uses: crowdstrike/container-image-scan-action@v0.7
         env:
           FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"
           FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"
