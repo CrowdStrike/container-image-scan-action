@@ -21,7 +21,7 @@
 -  `json_report`: Path to output the json report (optional, default: `None`)
 -  `log_level`: Set the logging level (optional, default: `INFO`)
 
-NOTE: Scoring is based on the CrowdStrike vulnerability severity tabe scoring shown below.
+NOTE: Scoring is based on the CrowdStrike vulnerability severity table scoring shown below.
 
 | Severity           | Score      |
 |--------------------|:-----------|
@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: CrowdStrike Container Image Scan
-        uses: crowdstrike/container-image-scan-action@v0.7
+        uses: crowdstrike/container-image-scan-action@v0.8
         with:
           falcon_client_id: <my_falcon_client_id>
           container_repository: docker.io/library/busybox
@@ -58,7 +58,7 @@ jobs:
           FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"
 ```
 
-Alternatively if you want to run all the configurations as secrets, set any the following under `env` instead of `uses`:
+Alternatively if you want to run all the configurations as secrets, set any the following as environment variables under `env` instead of `uses`:
 
 ```yaml
 name: Scan Container Images
@@ -76,7 +76,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: CrowdStrike Container Image Scan
-        uses: crowdstrike/container-image-scan-action@v0.7
+        uses: crowdstrike/container-image-scan-action@v0.8
         env:
           FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"
           FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"
