@@ -99,12 +99,12 @@ main() {
 
         python3 cs_scanimage.py --user-agent github-image-scan $opts
         EXIT_CODE=$?
-        echo "::set-output name=exit-code::$EXIT_CODE"
+        echo "exit-code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
         exit $EXIT_CODE
     else
         python3 cs_scanimage.py --user-agent github-image-scan
         EXIT_CODE=$?
-        echo "::set-output name=exit-code::$EXIT_CODE"
+        echo "exit-code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
         exit $EXIT_CODE
     fi
 }
