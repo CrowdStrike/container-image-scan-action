@@ -11,8 +11,7 @@ install_image_scan() {
     local cs_py="cs_scanimage.py"
     if [[ ! -f "$GITHUB_ACTION_PATH/$cs_py" ]]; then
         echo "Installing container-image-scan..."
-        local latest_pkg=$(curl -s https://api.github.com/repos/crowdstrike/container-image-scan/releases/latest | jq -r '.assets[0].browser_download_url')
-        curl -sSLo scan.tar.gz ${latest_pkg}
+        curl -sSLo scan.tar.gz https://github.com/CrowdStrike/container-image-scan/releases/latest/download/scan.tar.gz
         tar -xzf scan.tar.gz
         rm -f scan.tar.gz
     fi
