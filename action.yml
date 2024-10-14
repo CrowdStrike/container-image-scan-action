@@ -36,7 +36,7 @@ outputs:
 runs:
   using: composite
   steps:
-    - run: "pip install -r https://raw.githubusercontent.com/CrowdStrike/container-image-scan/main/requirements.txt"
+    - run: "pip install --break-system-packages -r https://raw.githubusercontent.com/CrowdStrike/container-image-scan/main/requirements.txt"
       shell: bash
     - id: scan-image
       run: $GITHUB_ACTION_PATH/scan.sh -u '${{ inputs.falcon_client_id }}' -r '${{ inputs.container_repository }}' -t '${{ inputs.container_tag }}' -c '${{ inputs.crowdstrike_region }}' -s '${{ inputs.crowdstrike_score }}' -R '${{ inputs.retry_count }}' --log-level '${{ inputs.log_level }}' --json-report '${{ inputs.json_report }}'
